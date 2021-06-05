@@ -1,64 +1,64 @@
 import numpy as np
 import pandas as pd
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model.logistic import LogisticRegression
 
-# ÆÀ²âÖ¸±ê£¬¼ÆËãF1 score
+# è¯„æµ‹æŒ‡æ ‡ï¼Œè®¡ç®—F1 score
 def countF1(train, predict): 
-    count = 0 # Í³¼ÆÔ¤²âµÄÕıÈ·µÄÕıÑù±¾Êı
+    count = 0 # ç»Ÿè®¡é¢„æµ‹çš„æ­£ç¡®çš„æ­£æ ·æœ¬æ•°
     for i in range(len(train)):
         if predict[i] == 1 and train[i] == 1:
             count += 1
-    pre =  count * 1.0 / sum(predict) # ×¼È·ÂÊ
-    recall =  count * 1.0 / sum(train) # ÕÙ»ØÂÊ
+    pre =  count * 1.0 / sum(predict) # å‡†ç¡®ç‡
+    recall =  count * 1.0 / sum(train) # å¬å›ç‡
     return 2 * pre * recall / (pre + recall)
     
 train_data = pd.read_csv('C:\\Users\\JingYi\\Desktop\\diabetes_prediction\\train_data.csv', encoding='gbk')
 # 1000,85
 
-filter_feature = ['id','label'] # È¡Ô¤²âÖµ
+filter_feature = ['id','label'] # å–é¢„æµ‹å€¼
 features = []
-for x in train_data.columns: # È¡ÌØÕ÷
+for x in train_data.columns: # å–ç‰¹å¾
     if x not in filter_feature:
         features.append(x)
 
-# È±Ê§ÖµÌî³ä
+# ç¼ºå¤±å€¼å¡«å……
 '''
-train_data.fillna(0, inplace=True) # Ìî³ä 0
-train_data.fillna(train_data.mean(),inplace=True) # Ìî³ä¾ùÖµ
-train_data.fillna(train_data.median(),inplace=True) # Ìî³äÖĞÎ»Êı
-train_data.fillna(train_data.mode(),inplace=True) # Ìî³äÖÚÊı,¸ÃÊı¾İÈ±Ê§Ì«¶àÖÚÊı³öÏÖÎªnanµÄÇé¿ö
+train_data.fillna(0, inplace=True) # å¡«å…… 0
+train_data.fillna(train_data.mean(),inplace=True) # å¡«å……å‡å€¼
+train_data.fillna(train_data.median(),inplace=True) # å¡«å……ä¸­ä½æ•°
+train_data.fillna(train_data.mode(),inplace=True) # å¡«å……ä¼—æ•°,è¯¥æ•°æ®ç¼ºå¤±å¤ªå¤šä¼—æ•°å‡ºç°ä¸ºnançš„æƒ…å†µ
 features_mode = {}
 for f in features:
     print f,':', list(train_data[f].dropna().mode().values)
     features_mode[f] = list(train_data[f].dropna().mode().values)[0]
 train_data.fillna(features_mode,inplace=True)
 
-train_data.fillna(method='pad', inplace=True) # Ìî³äÇ°Ò»ÌõÊı¾İµÄÖµ£¬µ«ÊÇÇ°Ò»ÌõÒ²²»Ò»¶¨ÓĞÖµ
+train_data.fillna(method='pad', inplace=True) # å¡«å……å‰ä¸€æ¡æ•°æ®çš„å€¼ï¼Œä½†æ˜¯å‰ä¸€æ¡ä¹Ÿä¸ä¸€å®šæœ‰å€¼
 train_data.fillna(0, inplace=True)
 
-train_data.fillna(method='bfill', inplace=True) # Ìî³äºóÒ»ÌõÊı¾İµÄÖµ£¬µ«ÊÇºóÒ»ÌõÒ²²»Ò»¶¨ÓĞÖµ
+train_data.fillna(method='bfill', inplace=True) # å¡«å……åä¸€æ¡æ•°æ®çš„å€¼ï¼Œä½†æ˜¯åä¸€æ¡ä¹Ÿä¸ä¸€å®šæœ‰å€¼
 train_data.fillna(0, inplace=True)
 
-for f in features: # ²åÖµ·¨Ìî³ä
+for f in features: # æ’å€¼æ³•å¡«å……
     train_data[f] = train_data[f].interpolate()
     
 train_data.dropna(inplace=True)
 '''
 
 
-train_data.fillna(0, inplace=True) # Ìî³ä 0
+train_data.fillna(0, inplace=True) # å¡«å…… 0
 train_data_x = train_data[features]
 train_data_y = train_data['label']
 
-X_train, X_test, y_train, y_test = train_test_split(train_data_x, train_data_y, random_state=1) # »®·ÖÑµÁ·¼¯¡¢²âÊÔ¼¯
+X_train, X_test, y_train, y_test = train_test_split(train_data_x, train_data_y, random_state=1) # åˆ’åˆ†è®­ç»ƒé›†ã€æµ‹è¯•é›†
 
 linreg = LogisticRegression() 
-linreg.fit(X_train, y_train) # Ä£ĞÍÑµÁ·
+linreg.fit(X_train, y_train) # æ¨¡å‹è®­ç»ƒ
 
 
-y_pred = linreg.predict(X_train) # Ä£ĞÍÔ¤²â
-print "ÑµÁ·¼¯F1:",countF1(y_train.values, y_pred)
+y_pred = linreg.predict(X_train) # æ¨¡å‹é¢„æµ‹
+print "è®­ç»ƒé›†F1:",countF1(y_train.values, y_pred)
 
-y_pred = linreg.predict(X_test) # Ä£ĞÍÔ¤²â
-print "²âÊÔ¼¯F1:",countF1(y_test.values, y_pred)
+y_pred = linreg.predict(X_test) # æ¨¡å‹é¢„æµ‹
+print "æµ‹è¯•é›†F1:",countF1(y_test.values, y_pred)
